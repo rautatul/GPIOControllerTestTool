@@ -1,0 +1,87 @@
+;
+; cvfGpio.inf
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=System 
+ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+Provider=%ManufacturerName%
+CatalogFile=cvfGpio.cat
+PnpLockdown=1
+DriverVer= 03/21/2020, 1.0.0.0; 
+
+[DestinationDirs]
+DefaultDestDir = 13
+;cvfGpio_Device_CoInstaller_CopyFiles = 11
+
+; ================= Class section =====================
+
+;[ClassInstall32]
+;Addreg=SampleClassReg
+
+;[SampleClassReg]
+;HKR,,,0,%ClassName%
+;HKR,,Icon,,-5
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+cvfGpio.sys  = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC1074 ;TGL
+%cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC1096 ;ADL
+%cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC100B ;RPL
+%cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC1007 ;MTL
+%cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC10B2 ;ARL
+%cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC10B5 ;LNL
+
+[cvfGpio_Device.NT]
+CopyFiles=Drivers_Dir
+
+[cvfGpio_Device.NT.HW]
+AddReg=cvfGpio_AddReg
+
+;[cvfGpio_Device.NT.AddReg]
+;HKR,,Security,,%SDDL_DEVOBJ_KERNEL_ONLY%
+
+[Drivers_Dir]
+cvfGpio.sys
+
+[cvfGpio_AddReg]
+; Set to 1 to connect the first interrupt resource found, 0 to leave disconnected
+HKR,Settings,"ConnectInterrupt",0x00010001,0
+
+;-------------- Service installation
+[cvfGpio_Device.NT.Services]
+AddService = cvfGpio,%SPSVCINST_ASSOCSERVICE%, cvfGpio_Service_Inst
+
+; -------------- cvfGpio driver install sections
+[cvfGpio_Service_Inst]
+DisplayName    = %cvfGpio.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\cvfGpio.sys
+LoadOrderGroup = Base
+
+[cvfGpio_Device.NT.Wdf]
+KmdfService =  cvfGpio, cvfGpio_wdfsect
+[cvfGpio_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Intel Corporation"
+DiskName = "cvfGpio Installation Disk"
+cvfGpio.DeviceDesc = "Intel(R) UsbGpio Device AT"
+cvfGpio.SVCDESC = "Gpio Service"

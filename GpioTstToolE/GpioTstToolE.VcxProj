@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Win 10 Debug|x64">
+      <Configuration>Win 10 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win81 Debug|x64">
+      <Configuration>Win81 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win81 Release|x64">
+      <Configuration>Win81 Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="PropertySheets">
+    <DriverType>KMDF</DriverType>
+    <PlatformToolset>WindowsApplicationForDrivers10.0</PlatformToolset>
+    <ConfigurationType>Application</ConfigurationType>
+    <Configuration>Win81 Debug</Configuration>
+  </PropertyGroup>
+  <PropertyGroup Label="Globals">
+    <VCTargetsPath Condition="'$(VCTargetsPath)' == '' and '$(VCTargetsPath12)' != '' and '$(VSVersion)' == ''">$(VCTargetsPath12)</VCTargetsPath>
+    <VCTargetsPath Condition="'$(VCTargetsPath)' == '' and '$(VCTargetsPath11)' != '' and '$(VSVersion)' == ''">$(VCTargetsPath11)</VCTargetsPath>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{71C77758-6FA2-49C2-AE2A-65969758C08A}</ProjectGuid>
+    <ProjectName>GpioTstToolE</ProjectName>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Win81 Debug'">
+    <TargetVersion>WindowsV6.3</TargetVersion>
+    <UseDebugLibraries>True</UseDebugLibraries>
+    <CLRSupport>false</CLRSupport>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)'=='Win81 Release'">
+    <TargetVersion>
+    </TargetVersion>
+    <UseDebugLibraries>False</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Win 10 Debug|x64'">
+    <DriverTargetPlatform>Universal</DriverTargetPlatform>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+  </ImportGroup>
+  <ItemGroup Label="WrappedTaskItems" />
+  <PropertyGroup>
+    <IntDir>$(ConfigurationName)\$(PlatformTarget)\</IntDir>
+    <IntDir Condition="'$(LPSS_BUILD_NUMBER)'!=''">$(LPSS_MAJOR_NUMBER).$(LPSS_MINOR_NUMBER).$(LPSS_BUILD_NUMBER).$(LPSS_HOTFIX_NUMBER)\$(IntDir)</IntDir>
+    <OutDir>$(IntDir)</OutDir>
+    <LpssCommonDir>..\..\..\Common</LpssCommonDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);UNICODE;_UNICODE</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(WDKContentRoot)\Include\Shared;%(AdditionalIncludeDirectories);..\GpioTstDrvE;$(LpssCommonDir);$(SDK_INC_PATH);$(WDKContentRoot)\Include\KM\spb\1.0</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <WarningLevel>Level4</WarningLevel>
+      <WppEnabled Condition="'$(Configuration)|$(Platform)'=='Win 10 Debug|x64'">true</WppEnabled>
+    </ClCompile>
+    <Midl>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);UNICODE;_UNICODE</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(WDKContentRoot)\Include\Shared;%(AdditionalIncludeDirectories);..\GpioTstDrvE;$(SDK_INC_PATH)</AdditionalIncludeDirectories>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions Condition="'$(LPSS_BUILD_NUMBER)'!=''">%(PreprocessorDefinitions);UNICODE;_UNICODE;LPSS_MAJOR_NUMBER=$(LPSS_MAJOR_NUMBER);LPSS_MINOR_NUMBER=$(LPSS_MINOR_NUMBER);LPSS_HOTFIX_NUMBER=$(LPSS_HOTFIX_NUMBER);LPSS_BUILD_NUMBER=$(LPSS_BUILD_NUMBER)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions);UNICODE;_UNICODE</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(WDKContentRoot)\Include\Shared;%(AdditionalIncludeDirectories);..\GpioTstDrvE;$(SDK_INC_PATH);$(LpssCommonDir)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>%(AdditionalDependencies);kernel32.lib</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="command.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="util.cpp" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VCRedistCRTDirSuffix Condition="'$(Configuration)'=='Win81 Debug'">DebugCRT</VCRedistCRTDirSuffix>
+    <VCRedistCRTDirSuffix Condition="'$(Configuration)'=='Win81 Release'">CRT</VCRedistCRTDirSuffix>
+    <VCRedistDllFilesSuffix Condition="'$(Configuration)'=='Win81 Debug'">d.dll</VCRedistDllFilesSuffix>
+    <VCRedistDllFilesSuffix Condition="'$(Configuration)'=='Win81 Release'">.dll</VCRedistDllFilesSuffix>
+    <VisualStudioVersionNoDot Condition="'$(VisualStudioVersion)'=='11.0'">110</VisualStudioVersionNoDot>
+    <VisualStudioVersionNoDot Condition="'$(VisualStudioVersion)'!='11.0'">100</VisualStudioVersionNoDot>
+    <VCRedistCRTDir>Microsoft.VC$(VisualStudioVersionNoDot).$(VCRedistCRTDirSuffix)\</VCRedistCRTDir>
+    <VCRedistDebugDir Condition="'$(Configuration)' == 'Win81 Debug'">Debug_NonRedist\</VCRedistDebugDir>
+    <VCRedistDllDir>$(VCInstallDir)redist\$(VCRedistDebugDir)$(PlatformTarget)\$(VCRedistCRTDir)</VCRedistDllDir>
+    <VCRedistDllFiles Condition="'$(VisualStudioVersion)'!='11.0'">$(VCRedistDllDir)msvcp$(VisualStudioVersionNoDot)$(VCRedistDllFilesSuffix);$(VCRedistDllDir)msvcr$(VisualStudioVersionNoDot)$(VCRedistDllFilesSuffix);</VCRedistDllFiles>
+    <VCRedistDllFiles Condition="'$(VisualStudioVersion)'=='11.0'">$(VCRedistDllDir)msvcp$(VisualStudioVersionNoDot)$(VCRedistDllFilesSuffix);$(VCRedistDllDir)msvcr$(VisualStudioVersionNoDot)$(VCRedistDllFilesSuffix);$(VCRedistDllDir)vccorlib$(VisualStudioVersionNoDot)$(VCRedistDllFilesSuffix)</VCRedistDllFiles>
+  </PropertyGroup>
+  <ItemGroup>
+    <Inf Include="*.inf" />
+    <FilesToPackage Include="$(TargetPath);$(OutDir)GpioTstToolE.pdb" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="*.txt;*.htm;*.html" />
+    <None Include="*.ico;*.cur;*.bmp;*.dlg;*.rct;*.gif;*.jpg;*.jpeg;*.wav;*.jpe;*.tiff;*.tif;*.png;*.rc2" />
+    <None Include="*.def;*.bat;*.hpj;*.asmx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="*.h;*.hpp;*.hxx;*.hm;*.inl;*.xsd" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
