@@ -58,6 +58,13 @@ OnPrepareHardware(
             status);
         goto exit;
     }
+    else {
+        Trace(
+            TRACE_LEVEL_ERROR,
+            TRACE_FLAG_WDFLOADING,
+            "[AR] Initialize GPIO IO resources! - %!STATUS!",
+            status);
+    }
 
     if (!pDevice->ConnectInterrupt)
     {
@@ -80,6 +87,13 @@ OnPrepareHardware(
             "Cannot initialize GPIO Interrupt resources! - %!STATUS!",
             status);
         goto exit;
+    }
+    else {
+        Trace(
+            TRACE_LEVEL_ERROR,
+            TRACE_FLAG_WDFLOADING,
+            "[AR] Initialize GPIO Interrupt resources! - %!STATUS!",
+            status);
     }
 
 exit:
@@ -234,7 +248,7 @@ OnIoDeviceControl(
         Trace(
             TRACE_LEVEL_WARNING,
             TRACE_FLAG_GPIO,
-            "Request %p received with unexpected IOCTL=%lu",
+            "[AR] Request %p received with unexpected IOCTL=%lu",
             FxRequest,
             IoControlCode);
         WdfRequestComplete(FxRequest, STATUS_INVALID_DEVICE_REQUEST);

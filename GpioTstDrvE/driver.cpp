@@ -80,7 +80,7 @@ DriverEntry(
     Trace(
         TRACE_LEVEL_VERBOSE, 
         TRACE_FLAG_WDFLOADING,
-        "Created WDF driver object");
+        "AR Created WDF driver object");
 
 exit:
 

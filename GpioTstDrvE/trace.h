@@ -32,13 +32,13 @@ extern "C"
 // Tracing Definitions:
 //
 // Control GUID: 
-// {6A62DC95-77FA-4515-9A85-AC1BA68CB869}
+// [Guid("43840FCA-7695-4481-871D-1BC05C426AA7")]
 //
 
 #define WPP_CONTROL_GUIDS                           \
     WPP_DEFINE_CONTROL_GUID(                        \
-        CvfGpioTraceGuid,                       \
-        (6A62DC95,77FA,4515,9A85,AC1BA68CB869),     \
+        cvfGpioTraceGuid,                       \
+        (43840FCA,7695,4481,871D,1BC05C426AA7),     \
         WPP_DEFINE_BIT(TRACE_FLAG_WDFLOADING)       \
         WPP_DEFINE_BIT(TRACE_FLAG_GPIO)             \
         WPP_DEFINE_BIT(TRACE_FLAG_GPIO_IO)          \
