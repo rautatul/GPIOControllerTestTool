@@ -6,10 +6,10 @@
 Signature="$WINDOWS NT$"
 Class=System 
 ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
-Provider=%ManufacturerName%
+Provider = Intel Corporation
 CatalogFile=cvfGpio.cat
 PnpLockdown=1
-DriverVer= 03/21/2020, 1.0.0.0; 
+DriverVer = 06/16/2022,12.53.37.304
 
 [DestinationDirs]
 DefaultDestDir = 13
@@ -35,9 +35,9 @@ cvfGpio.sys  = 1,,
 ;*****************************************
 
 [Manufacturer]
-%ManufacturerName%=Standard,NT$ARCH$
+%ManufacturerName%=Standard,NTamd64
 
-[Standard.NT$ARCH$]
+[Standard.NTamd64]
 %cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC1074 ;TGL
 %cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC1096 ;ADL
 %cvfGpio.DeviceDesc%=cvfGpio_Device, ACPI\INTC100B ;RPL
@@ -77,7 +77,7 @@ LoadOrderGroup = Base
 [cvfGpio_Device.NT.Wdf]
 KmdfService =  cvfGpio, cvfGpio_wdfsect
 [cvfGpio_wdfsect]
-KmdfLibraryVersion = $KMDFVERSION$
+KmdfLibraryVersion = 1.15
 
 [Strings]
 SPSVCINST_ASSOCSERVICE= 0x00000002
