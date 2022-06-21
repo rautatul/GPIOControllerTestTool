@@ -194,6 +194,24 @@ OnDeviceAdd(
 
             goto exit;
         }
+/*
+        if (NT_SUCCESS(status)) {
+            status = CreateDeviceContext(fxDevice);
+        }
+        if (NT_SUCCESS(status)) {
+            status = InitDeviceContext(fxDevice);
+        }
+*/  
+        // Create a device interface so that applications can find and talk
+        // to us.
+        //
+        if (NT_SUCCESS(status)) {
+            status = WdfDeviceCreateDeviceInterface(
+                fxDevice,
+                &GUID_DEVINTERFACE_GPIO,
+                NULL // ReferenceString
+            );
+        }
 
         pDevice = GetDeviceContext(fxDevice);
         NT_ASSERT(pDevice != nullptr);

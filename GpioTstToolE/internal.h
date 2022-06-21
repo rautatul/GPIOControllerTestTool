@@ -20,7 +20,6 @@ by implication, inducement, estoppel or otherwise. Any license under such intell
 rights must be express and approved by Intel in writing.
 
 *************************************************************************************************/
-
 #include <string>
 #include <map>
 #include <list>
@@ -39,6 +38,7 @@ rights must be express and approved by Intel in writing.
 #include <windows.h>
 #include <winioctl.h>
 #include <specstrings.h>
+#include <Cfgmgr32.h>
 
 #include <spb.h>
 
@@ -46,9 +46,21 @@ rights must be express and approved by Intel in writing.
 
 using namespace std;
 
+#if !defined( _GUID_DEVINTERFACE_GPIO_DEFINED )
+#define _GUID_DEVINTERFACE_GPIO_DEFINED
+DEFINE_GUID(GUID_DEVINTERFACE_GPIO,
+    0xde937575, 0x7a87, 0x4182, 0xbf, 0xff, 0x98, 0x12, 0xb3, 0x8c, 0xce, 0x5f);
+#endif
 //
 // Global Variables
 //
+extern HCMNOTIFICATION m_hNotification_Interface;
+
+#define _USE_DEVICE_PATH_ASCII
+
+#ifndef _MAX_PATH
+#define _MAX_PATH   260
+#endif
 
 extern HANDLE g_Peripheral;
 

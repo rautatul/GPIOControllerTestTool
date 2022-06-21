@@ -21,7 +21,14 @@ rights must be express and approved by Intel in writing.
 
 *************************************************************************************************/
 
+//#include <Cfgmgr32.h>
+#include "framework_.h"
+
 #include "internal.h"
+
+//#if defined( _USE_DEVICE_PATH_ASCII )
+CHAR m_devicePath[_MAX_PATH];
+//#endif
 
 bool
 ReadCommandFromStream(
@@ -51,6 +58,101 @@ OnControlKey(
     _In_ DWORD ControlType
     );
 
+#if defined( _USE_DEVICE_PATH_ASCII )
+
+_Success_(return != false)
+BOOL GetDevicePathFromGuidA(
+    _In_ LPCGUID InterfaceGuid,
+    _Out_writes_to_(sizeof(CHAR), BufLen) _Always_(_Post_z_) _Null_terminated_ PCHAR DevicePath,
+    _In_range_(0, 1024) UINT32 BufLen
+)
+{
+    CONFIGRET cr = CR_SUCCESS;
+    PSTR deviceInterfaceList = NULL;
+    PSTR nextInterface;
+    ULONG deviceInterfaceListLength = 0;
+    errno_t err = -1;
+    //HRESULT hr = E_FAIL;
+    BOOL bRet = TRUE;
+
+    //DbgEnter();
+    if (DevicePath == NULL || BufLen == 0 || BufLen > 1024)
+    {
+//        DbgOutputError("%s: Error DevicePath is NULL.", __FUNCTION__);
+        cr = CR_INVALID_POINTER;
+        goto clean0;
+    }
+
+    SecureZeroMemory(DevicePath, (BufLen * sizeof(CHAR)));
+    cr = CM_Get_Device_Interface_List_SizeA(
+        &deviceInterfaceListLength,
+        (LPGUID)InterfaceGuid,
+        NULL,
+        CM_GET_DEVICE_INTERFACE_LIST_PRESENT);
+    if (cr != CR_SUCCESS) {
+        //DbgOutputError("%s: Error 0x%x retrieving device interface list size.", __FUNCTION__, (UINT32)cr);
+        goto clean0;
+    }
+
+    if (deviceInterfaceListLength <= 1) {
+        bRet = FALSE;
+        //DbgOutputError("%s: Error: No active device interfaces found.", __FUNCTION__);
+        //DbgOutputError("%s:   Is the sample driver loaded?", __FUNCTION__);
+        goto clean0;
+    }
+
+    deviceInterfaceList = (PSTR)calloc(deviceInterfaceListLength, sizeof(CHAR));
+    if (deviceInterfaceList == NULL) {
+        //DbgOutputError("%s: Error allocating memory for device interface list.", __FUNCTION__);
+        goto clean0;
+    }
+    SecureZeroMemory(deviceInterfaceList, deviceInterfaceListLength);
+
+    cr = CM_Get_Device_Interface_ListA(
+        (LPGUID)InterfaceGuid,
+        NULL,
+        deviceInterfaceList,
+        deviceInterfaceListLength,
+        CM_GET_DEVICE_INTERFACE_LIST_PRESENT);
+    if (cr != CR_SUCCESS) {
+        //DbgOutputError("%s: Error 0x%x retrieving device interface list.", __FUNCTION__, (UINT32)cr);
+        goto clean0;
+    }
+    //nextInterface = deviceInterfaceList + _tcslen(deviceInterfaceList) + 1;
+    nextInterface = deviceInterfaceList + strlen(deviceInterfaceList) + 1;
+    if (*nextInterface != NULL) {
+      //  DbgOutputWarning("%s: More than one device interface instance found.", __FUNCTION__);
+      //  DbgOutputWarning("%s: Selecting first matching device.", __FUNCTION__);
+    }
+
+#if 0   // Klocwork fix
+    hr = StringCchCopyA(DevicePath, BufLen, deviceInterfaceList);
+    if (FAILED(hr)) {
+        bRet = FALSE;
+        DbgOutputError("StringCchCopy failed with HRESULT 0x%x", (UINT32)hr);
+        goto clean0;
+    }
+#else
+    err = strcpy_s(DevicePath, BufLen, deviceInterfaceList);
+    if (err != S_OK) {
+        bRet = FALSE;
+        printf_s("Error: StringCopy failed\n");
+        goto clean0;
+    }
+#endif
+
+clean0:
+    if (deviceInterfaceList != NULL) {
+        free(deviceInterfaceList);
+    }
+    if (CR_SUCCESS != cr) {
+        bRet = FALSE;
+    }
+
+    //DbgExit();
+    return bRet;
+}
+#endif
 void 
 __cdecl 
 main(
@@ -60,6 +162,7 @@ main(
 {
     FILE* inputStream = stdin;
     bool prompt = true;
+    BOOL bStatus = TRUE;
 
     PCSTR peripheralPath = nullptr;
     PCSTR inputPath = nullptr;
@@ -132,7 +235,145 @@ main(
     //
     // Open peripheral driver
     //
+            // Step 1:
+        // Call CM_Register_Notification for the interface arrival
+        //
+        // Step 2:
+        // Call CM_GetDeviceInterfaceList()
+        // FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE
+        //
+        // Setp 3:
+        // If interface is present, call CreateFile to open a handle to the driver
+        //
+        // Step 4:
+        // Call CM_Register_Notification for the handle
+        // FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEHANDLE
+        //
+        // Step 5:
+        // Use the callback to act on the notifications
+        // See function for all possible actions
+        //
+        // Step 6:
+        // When closing the handle to the device:
+        // CM_Unregister_Notification with handle from Step 4 above
+        //
+        // Step 7:
+        // When finished with the device:
+        // CM_Unregister_Notification with handle from Step 1 above
+        //
 
+//#ifndef _TEST_WITHOUT_DRIVER
+        // Step 1
+        // Call CM_Register_Notification for the interface arrival
+        // FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE
+    /*
+    if (m_hNotification_Interface == INVALID_HANDLE_VALUE)
+    {
+        HCMNOTIFICATION hNotification = (HCMNOTIFICATION)INVALID_HANDLE_VALUE;
+        CM_NOTIFY_FILTER CMFilter = { 0 };
+        CMFilter.cbSize = sizeof(CMFilter);
+        CMFilter.FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEINTERFACE;
+        CMFilter.u.DeviceInterface.ClassGuid = GUID_DEVINTERFACE_GPIO;
+        CMFilter.Flags = 0;
+        CMFilter.Reserved = 0;
+
+        // Register with config manager.
+        CONFIGRET cr = CR_SUCCESS; 
+        cr = CM_Register_Notification(
+            &CMFilter,      // PCM_NOTIFY_FILTER   pFilter,
+            this,           // PVOID               pContext,
+            CMNotifyCb,     // PCM_NOTIFY_CALLBACK pCallback,
+            &hNotification  // PHCMNOTIFICATION    pNotifyContext
+        );
+        if (CR_SUCCESS != cr) {
+            DbgOutputError("Failed on CM_Register_Notification!");
+            goto xit;
+        }
+        m_hNotification_Interface = hNotification;
+    }
+    */
+    if (g_Peripheral == INVALID_HANDLE_VALUE)
+    {
+        //
+        // Step 2:
+        // Call CM_GetDeviceInterfaceList()
+        //
+#if defined( _USE_DEVICE_PATH_ASCII )
+        bStatus = GetDevicePathFromGuidA(&GUID_DEVINTERFACE_GPIO, m_devicePath, (UINT32)ARRAY_SIZE(m_devicePath));
+        if (!bStatus)
+        {
+        //    DbgOutputError("Failed to get device path from GUID");
+        //    DbgOutputError("Check if MCF Driver is installed and enabled");
+        //    goto xit;
+        }
+    //    DbgOutputInfo(_T("%s"), (PSTR)m_devicePath);
+#endif
+
+        //
+        // Setp 3:
+        // If interface is present, call CreateFile to open a handle to the driver
+        //DbgOutputInfo("%s: Attempting MCF.sys", __FUNCTION__);
+#if defined( _USE_DEVICE_PATH_ASCII )
+         g_Peripheral = CreateFileA(
+            m_devicePath,
+            (GENERIC_READ | GENERIC_WRITE),
+            0,
+            nullptr,
+            OPEN_EXISTING,
+            0, // FLAGS
+            nullptr
+        );
+        if (g_Peripheral == INVALID_HANDLE_VALUE)
+        {
+            bStatus = FALSE;
+        //    DbgOutputError("Failed to Create %s", m_devicePath);
+        //    goto xit;
+        }
+#endif
+        //m_hKernelModeDriver = hKernelModeDriver;
+    }
+    /*
+    //
+    // Step 4:
+    // Call CM_Register_Notification for the handle
+    // FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEHANDLE
+    if (m_hNotification_Handle == INVALID_HANDLE_VALUE && g_Peripheral != INVALID_HANDLE_VALUE)
+    {
+        HCMNOTIFICATION hNotification = (HCMNOTIFICATION)INVALID_HANDLE_VALUE;
+        CM_NOTIFY_FILTER CMFilter = { 0 };
+        CMFilter.cbSize = sizeof(CMFilter);
+        CMFilter.FilterType = CM_NOTIFY_FILTER_TYPE_DEVICEHANDLE;
+        CMFilter.u.DeviceHandle.hTarget = m_hKernelModeDriver;
+        CMFilter.Flags = 0;
+        CMFilter.Reserved = 0;
+
+        // Register with config manager.
+        cr = CM_Register_Notification(
+            &CMFilter,      // PCM_NOTIFY_FILTER   pFilter,
+            this,           // PVOID               pContext,
+            CMNotifyCb,     // PCM_NOTIFY_CALLBACK pCallback,
+            &hNotification  // PHCMNOTIFICATION    pNotifyContext
+        );
+        if (CR_SUCCESS != cr) {
+            DbgOutputError("Failed on CM_Register_Notification!");
+            goto xit;
+        }
+        m_hNotification_Handle = hNotification;
+    }
+    */
+    //
+    // Step 5:
+    // Use the callback to act on the notifications
+    // See function for all possible actions
+    //
+    // Step 6:
+    // CM_Unregister_Notification with handle from Step 1 above
+    //
+    // Step 7:
+    // When finished with the device:
+    // CM_Unregister_Notification with handle from Step 1 above
+    //
+    /*
     if (peripheralPath == nullptr)
     {
         g_Peripheral = CreateFileW(
@@ -162,7 +403,7 @@ main(
         printf("Error opening peripheral driver - %d\n", GetLastError());
         goto exit;
     }
-
+    */
     setvbuf(inputStream, nullptr, _IONBF, 0);
     setvbuf(stdout, nullptr, _IONBF, 0);
     setvbuf(stderr, nullptr, _IONBF, 0);

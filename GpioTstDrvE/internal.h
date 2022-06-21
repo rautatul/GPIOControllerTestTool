@@ -42,12 +42,23 @@ writing.
 #include <wdm.h>
 #include <wdf.h>
 #include <ntstrsafe.h>
+#include <initguid.h>
+#include <ntstrsafe.h>
+#include <stdio.h>
+#include <stdarg.h>
+#include <varargs.h>
 
 #include "spb.h"
 #include "gpioioctl.h"
 
 #include "trace.h"
 
+// de937575 - 7a87 - 4182 - bfff - 9812b38cce5f 
+#if !defined( _GUID_DEVINTERFACE_GPIO_DEFINED )
+#define _GUID_DEVINTERFACE_GPIO_DEFINED
+DEFINE_GUID(GUID_DEVINTERFACE_GPIO,
+    0xde937575, 0x7a87, 0x4182, 0xbf, 0xff, 0x98, 0x12, 0xb3, 0x8c, 0xce, 0x5f);
+#endif
 //
 // Forward Declarations
 //
