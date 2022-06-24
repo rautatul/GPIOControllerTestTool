@@ -83,5 +83,5 @@ KmdfLibraryVersion = $KMDFVERSION$
 SPSVCINST_ASSOCSERVICE= 0x00000002
 ManufacturerName="Intel Corporation"
 DiskName = "cvfGpio Installation Disk"
-cvfGpio.DeviceDesc = "Intel(R) UsbGpio Device TestController"
+cvfGpio.DeviceDesc = "Intel(R) UsbGpio Device TestControlleR"
 cvfGpio.SVCDESC = "Gpio Service"
